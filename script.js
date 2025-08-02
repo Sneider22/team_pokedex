@@ -10,6 +10,10 @@ const typeColors = {
 // Pokemon names list for autocomplete
 let pokemonNamesList = [];
 
+// Current Pokemon data for shiny toggle
+let currentPokemonData = null;
+let isShinyMode = false;
+
 // Type effectiveness chart - what each type is strong/weak against
 const typeEffectiveness = {
     normal: { weak: ['fighting'], strong: [], immune: ['ghost'] },
@@ -270,6 +274,20 @@ async function searchPokemonByType() {
     }
 }
 
+// Get Pokemon region based on ID
+function getPokemonRegion(pokemonId) {
+    if (pokemonId >= 1 && pokemonId <= 151) return 'Kanto';
+    if (pokemonId >= 152 && pokemonId <= 251) return 'Johto';
+    if (pokemonId >= 252 && pokemonId <= 386) return 'Hoenn';
+    if (pokemonId >= 387 && pokemonId <= 493) return 'Sinnoh';
+    if (pokemonId >= 494 && pokemonId <= 649) return 'Teselia';
+    if (pokemonId >= 650 && pokemonId <= 721) return 'Kalos';
+    if (pokemonId >= 722 && pokemonId <= 809) return 'Alola';
+    if (pokemonId >= 810 && pokemonId <= 898) return 'Galar';
+    if (pokemonId >= 899 && pokemonId <= 1010) return 'Paldea';
+    return 'Desconocida';
+}
+
 // Calculate type effectiveness for a Pokemon
 function calculateTypeEffectiveness(pokemonTypes) {
     const weaknesses = new Set();
@@ -351,10 +369,20 @@ function displayPokemon(pokemon) {
     const immunityBadges = createTypeBadges(effectiveness.immunities, 'immunity');
     const strongAgainstBadges = createTypeBadges(effectiveness.strongAgainst, 'strong-against');
     
+    // Store current Pokemon data for shiny toggle
+    currentPokemonData = pokemon;
+    isShinyMode = false;
+    
     pokemonInfoDiv.innerHTML = `
         <div class="pokemon-card-detailed">
             <h2>${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)} #${pokemon.id}</h2>
-            <img src="${pokemon.sprites.front_default || pokemon.sprites.front_shiny}" alt="${pokemon.name}">
+            <div class="pokemon-image-container">
+                <img id="pokemon-image" src="${pokemon.sprites.front_default}" alt="${pokemon.name}">
+                <button id="shiny-toggle" class="shiny-toggle-btn" onclick="toggleShiny()">
+                    <span class="toggle-icon">✨</span>
+                    <span class="toggle-text">Shiny</span>
+                </button>
+            </div>
             
             <div class="pokemon-info-section">
                 <div class="info-group">
@@ -388,15 +416,19 @@ function displayPokemon(pokemon) {
                 </div>
                 
                 <div class="info-group">
-                    <h4>Habilidades y Experiencia</h4>
-                    <div class="pokemon-info-grid">
-                        <div class="pokemon-info-item full-width">
+                    <div class="pokemon-info-single">
+                        <div class="pokemon-info-item single-item">
                             <strong>Habilidades</strong>
                             <span>${abilities}</span>
                         </div>
-                        <div class="pokemon-info-item full-width">
-                            <strong>Experiencia Base</strong>
-                            <span>${pokemon.base_experience || 'N/A'}</span>
+                    </div>
+                </div>
+                
+                <div class="info-group">
+                    <div class="pokemon-info-single">
+                        <div class="pokemon-info-item single-item">
+                            <strong>Región de Origen</strong>
+                            <span>${getPokemonRegion(pokemon.id)}</span>
                         </div>
                     </div>
                 </div>
@@ -416,7 +448,7 @@ function displayPokemon(pokemon) {
                         <div class="effectiveness-card strong-against-card">
                             <div class="effectiveness-header">
                                 <span class="effectiveness-icon">🗡️</span>
-                                <strong>Es fuerte contra</strong>
+                                <strong>Fuerte contra</strong>
                             </div>
                             <div class="effectiveness-types">${strongAgainstBadges}</div>
                         </div>
@@ -454,6 +486,29 @@ function displayPokemon(pokemon) {
     `;
     
     document.getElementById('pokemonList').innerHTML = '';
+}
+
+// Toggle between normal and shiny Pokemon sprites
+function toggleShiny() {
+    if (!currentPokemonData) return;
+    
+    const pokemonImage = document.getElementById('pokemon-image');
+    const toggleBtn = document.getElementById('shiny-toggle');
+    const toggleText = toggleBtn.querySelector('.toggle-text');
+    
+    if (!isShinyMode) {
+        // Switch to shiny
+        pokemonImage.src = currentPokemonData.sprites.front_shiny || currentPokemonData.sprites.front_default;
+        toggleText.textContent = 'Normal';
+        toggleBtn.classList.add('shiny-active');
+        isShinyMode = true;
+    } else {
+        // Switch to normal
+        pokemonImage.src = currentPokemonData.sprites.front_default;
+        toggleText.textContent = 'Shiny';
+        toggleBtn.classList.remove('shiny-active');
+        isShinyMode = false;
+    }
 }
 
 // Create Pokemon card for type search
