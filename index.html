@@ -25,7 +25,10 @@
                 </div>
                 
                 <div id="name-search" class="search-tab">
-                    <input type="text" id="pokemonName" placeholder="Ingresa el nombre del Pokémon">
+                    <div class="autocomplete-container">
+                        <input type="text" id="pokemonName" placeholder="Ingresa el nombre del Pokémon" autocomplete="off">
+                        <div id="autocomplete-dropdown" class="autocomplete-dropdown"></div>
+                    </div>
                     <button id="fetchByNameButton" class="search-btn">🔍 Buscar</button>
                 </div>
                 
