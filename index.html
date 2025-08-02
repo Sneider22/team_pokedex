@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokédex</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Pokédex Avanzada</h1>
+        
+        <div class="search-section">
+            <div class="search-tabs">
+                <button class="tab-button active" data-tab="id">Por ID</button>
+                <button class="tab-button" data-tab="name">Por Nombre</button>
+                <button class="tab-button" data-tab="type">Por Tipo</button>
+                <button class="tab-button" data-tab="random">Al Azar</button>
+            </div>
+            
+            <div class="search-content">
+                <div id="id-search" class="search-tab active">
+                    <input type="number" id="pokemonId" placeholder="Ingresa ID del Pokémon (1-1010)" min="1" max="1010">
+                    <button id="fetchByIdButton" class="search-btn">🔍 Buscar</button>
+                </div>
+                
+                <div id="name-search" class="search-tab">
+                    <input type="text" id="pokemonName" placeholder="Ingresa el nombre del Pokémon">
+                    <button id="fetchByNameButton" class="search-btn">🔍 Buscar</button>
+                </div>
+                
+                <div id="type-search" class="search-tab">
+                    <div class="dual-type-container">
+                        <select id="pokemonType" class="type-dropdown">
+                            <option value="">Tipo principal...</option>
+                        </select>
+                        <select id="pokemonType2" class="type-dropdown">
+                            <option value="">Tipo secundario (opcional)...</option>
+                        </select>
+                    </div>
+                    <button id="fetchByTypeButton" class="search-btn">🔍 Ver Pokémon</button>
+                </div>
+                
+                <div id="random-search" class="search-tab">
+                    <div class="random-container">
+                        <p class="random-description">Descubre un Pokémon aleatorio y sorpréndete</p>
+                        <button id="fetchRandomButton" class="search-btn random-btn">🎲 Pokémon Aleatorio</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="pokemonInfo" class="pokemon-info"></div>
+        <div id="pokemonList" class="pokemon-list"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
