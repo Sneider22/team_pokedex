@@ -1,4 +1,4 @@
-# 🔍 Pokédex Avanzada
+# Pokédex 
 
 Una aplicación web moderna y responsive para explorar el mundo Pokémon con múltiples opciones de búsqueda y un diseño elegante.
 
@@ -83,20 +83,6 @@ team_pokedex/
 - Perfecto para descubrir nuevos Pokémon
 - Botón distintivo con diseño verde
 
-## 🎨 Paleta de Colores
-
-- **Fondo principal**: Gradiente azul (#4a90e2) a gris (#7b8794)
-- **Tarjetas**: Gradiente azul (#5a7fc7) a gris azulado (#6c7b8a)
-- **Botones principales**: Azul (#007bff)
-- **Botón aleatorio**: Verde (#28a745)
-- **Tipos**: Colores oficiales de Pokémon para cada tipo
-
-## 📱 Breakpoints Responsive
-
-- **Desktop**: > 768px - Layout completo con grid de 2 columnas
-- **Tablet**: 768px - Ajustes de espaciado y tamaños
-- **Móvil**: < 480px - Layout de 1 columna, elementos apilados
-
 ## 🚀 Cómo Usar
 
 1. **Abrir la aplicación**: Simplemente abre `index.html` en tu navegador web
@@ -110,36 +96,6 @@ team_pokedex/
    - Ver información detallada en la tarjeta
    - En búsqueda por tipo, hacer clic en cualquier tarjeta para ver detalles
 
-## 🌟 Características Técnicas
-
-### Optimizaciones de Rendimiento
-- **Lazy loading**: Carga de imágenes optimizada
-- **Manejo de errores**: Validaciones y mensajes informativos
-- **Estados de carga**: Indicadores visuales durante las peticiones
-
-### Accesibilidad
-- **Navegación por teclado**: Soporte para tecla Enter en campos de búsqueda
-- **Contraste**: Colores con buen contraste para legibilidad
-- **Responsive**: Adaptable a diferentes tamaños de pantalla
-
-### Experiencia de Usuario
-- **Transiciones suaves**: Animaciones CSS para mejor fluidez
-- **Feedback visual**: Estados hover y active en botones
-- **Organización lógica**: Información agrupada por categorías
-
-## 🔧 Instalación y Configuración
-
-No requiere instalación especial. Simplemente:
-
-1. Descarga todos los archivos del proyecto
-2. Abre `index.html` en cualquier navegador moderno
-3. ¡Disfruta explorando el mundo Pokémon!
-
-## 🌐 Compatibilidad
-
-- **Navegadores**: Chrome, Firefox, Safari, Edge (versiones modernas)
-- **Dispositivos**: Desktop, tablet, móvil
-- **Resoluciones**: Desde 320px hasta 1920px+
 
 ## 📝 Notas del Desarrollador
 
