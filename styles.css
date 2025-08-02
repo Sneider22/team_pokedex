@@ -29,6 +29,7 @@ h1 {
     margin-bottom: 30px;
     font-size: 2.5em;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
 }
 
 /* Search Section Styles */
@@ -245,7 +246,7 @@ input:focus, select:focus {
 }
 
 .pokemon-card-detailed {
-    background: linear-gradient(135deg, #5a7fc7 0%, #8b9dc3 50%, #6c7b8a 100%);
+    background: linear-gradient(135deg, #397ec4 0%, #355291 50%, #6c7b8a 100%);
     border-radius: 20px;
     padding: 40px;
     text-align: center;
@@ -281,7 +282,7 @@ input:focus, select:focus {
 .pokemon-image-container {
     position: relative;
     display: inline-block;
-    margin: 20px 0 30px 0;
+    margin: 0px 0 0px 0;
 }
 
 .pokemon-card-detailed img {
@@ -554,6 +555,24 @@ input:focus, select:focus {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.footer p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9em;
+    margin: 0;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
 @media (max-width: 480px) {
     .pokemon-info-item.full-width {
         grid-column: 1;
@@ -803,7 +822,7 @@ input:focus, select:focus {
 @media (max-width: 480px) {
     .container {
         margin: 5px;
-        padding: 15px;
+        padding: 8px;
     }
     
     .pokemon-card-detailed {
