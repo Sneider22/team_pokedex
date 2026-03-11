@@ -69,7 +69,6 @@ team_pokedex/
 
 ### Búsqueda por Nombre
 - Búsqueda case-insensitive
-- Soporte para nombres en inglés
 - Manejo de errores para nombres no encontrados
 
 ### Búsqueda por Tipo
@@ -81,21 +80,6 @@ team_pokedex/
 ### Pokémon Aleatorio
 - Generación aleatoria entre los 1010 Pokémon disponibles
 - Perfecto para descubrir nuevos Pokémon
-- Botón distintivo con diseño verde
-
-## 🚀 Cómo Usar
-
-1. **Abrir la aplicación**: Simplemente abre `index.html` en tu navegador web
-2. **Seleccionar método de búsqueda**: Haz clic en cualquiera de las 4 pestañas
-3. **Realizar búsqueda**: 
-   - **ID**: Ingresa un número y presiona buscar
-   - **Nombre**: Escribe el nombre del Pokémon
-   - **Tipo**: Selecciona uno o dos tipos del dropdown
-   - **Aleatorio**: Simplemente haz clic en el botón
-4. **Explorar resultados**: 
-   - Ver información detallada en la tarjeta
-   - En búsqueda por tipo, hacer clic en cualquier tarjeta para ver detalles
-
 
 ## 📝 Notas del Desarrollador
 
