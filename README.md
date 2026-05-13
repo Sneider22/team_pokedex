@@ -2,7 +2,7 @@
 
 Una aplicación web moderna y responsive para explorar el mundo Pokémon con múltiples opciones de búsqueda y un diseño elegante.
 
-## ✨ Características
+## Características
 
 ### 🔎 Múltiples Formas de Búsqueda
 - **Por ID**: Busca Pokémon por su número de Pokédex (1-1010)
@@ -91,4 +91,4 @@ Este proyecto fue desarrollado con enfoque en:
 
 ---
 
-**¡Explora, descubre y diviértete con tu nueva Pokédex! 🎮✨**
+**¡Explora, descubre y diviértete con tu nueva Pokédex!**
