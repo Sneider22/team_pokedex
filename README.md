@@ -28,7 +28,7 @@ Una aplicación web moderna y responsive para explorar el mundo Pokémon con mú
 - **Estadísticas**: Todas las stats base en formato de cuadrícula
 - **Imagen oficial**: Sprite del Pokémon desde la PokéAPI
 
-## 🚀 Tecnologías Utilizadas
+## Tecnologías Utilizadas
 
 - **HTML5**: Estructura semántica y accesible
 - **CSS3**: 
@@ -42,7 +42,7 @@ Una aplicación web moderna y responsive para explorar el mundo Pokémon con mú
   - Manipulación del DOM
   - Event listeners y manejo de eventos
 
-## 🌐 API Utilizada
+## API Utilizada
 
 - **[PokéAPI](https://pokeapi.co/)**: API RESTful gratuita con información completa de Pokémon
   - Endpoints utilizados:
