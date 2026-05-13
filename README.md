@@ -50,7 +50,7 @@ Una aplicación web moderna y responsive para explorar el mundo Pokémon con mú
     - `/type/` - Lista de todos los tipos
     - `/type/{type}` - Pokémon por tipo específico
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 team_pokedex/
@@ -60,7 +60,7 @@ team_pokedex/
 └── README.md          # Documentación del proyecto
 ```
 
-## 🎯 Funcionalidades Detalladas
+## Funcionalidades Detalladas
 
 ### Búsqueda por ID
 - Rango válido: 1-1010 Pokémon
