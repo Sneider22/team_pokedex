@@ -14,32 +14,69 @@ let pokemonNamesList = [];
 let currentPokemonData = null;
 let isShinyMode = false;
 
-// Type effectiveness chart - what each type is strong/weak against
-const typeEffectiveness = {
-    normal: { weak: ['fighting'], strong: [], immune: ['ghost'] },
-    fighting: { weak: ['flying', 'psychic', 'fairy'], strong: ['normal', 'rock', 'steel', 'ice', 'dark'], immune: ['ghost'] },
-    flying: { weak: ['rock', 'electric', 'ice'], strong: ['fighting', 'bug', 'grass'], immune: ['ground'] },
-    poison: { weak: ['ground', 'psychic'], strong: ['fighting', 'poison', 'bug', 'grass', 'fairy'], immune: [] },
-    ground: { weak: ['water', 'grass', 'ice'], strong: ['poison', 'rock', 'steel', 'fire', 'electric'], immune: ['flying', 'electric'] },
-    rock: { weak: ['fighting', 'ground', 'steel', 'water', 'grass'], strong: ['normal', 'flying', 'poison', 'fire'], immune: [] },
-    bug: { weak: ['flying', 'rock', 'fire'], strong: ['fighting', 'ground', 'grass'], immune: [] },
-    ghost: { weak: ['ghost', 'dark'], strong: ['poison', 'bug'], immune: ['normal', 'fighting'] },
-    steel: { weak: ['fighting', 'ground', 'fire'], strong: ['normal', 'flying', 'rock', 'bug', 'steel', 'grass', 'psychic', 'ice', 'dragon', 'fairy'], immune: ['poison'] },
-    fire: { weak: ['ground', 'rock', 'water'], strong: ['bug', 'steel', 'fire', 'grass', 'ice', 'fairy'], immune: [] },
-    water: { weak: ['grass', 'electric'], strong: ['steel', 'fire', 'water', 'ice'], immune: [] },
-    grass: { weak: ['flying', 'poison', 'bug', 'fire', 'ice'], strong: ['ground', 'rock', 'water'], immune: [] },
-    electric: { weak: ['ground'], strong: ['flying', 'steel', 'electric'], immune: [] },
-    psychic: { weak: ['bug', 'ghost', 'dark'], strong: ['fighting', 'psychic'], immune: [] },
-    ice: { weak: ['fighting', 'rock', 'steel', 'fire'], strong: ['ice'], immune: [] },
-    dragon: { weak: ['ice', 'dragon', 'fairy'], strong: ['fire', 'water', 'electric', 'grass'], immune: [] },
-    dark: { weak: ['fighting', 'bug', 'fairy'], strong: ['ghost', 'dark'], immune: ['psychic'] },
-    fairy: { weak: ['poison', 'steel'], strong: ['fighting', 'bug', 'dark'], immune: ['dragon'] }
+// Attacker vs Defender type chart (multipliers) for Generation 6+
+const typeChart = {
+    normal: { poison: 0.5, rock: 0.5, ghost: 0, steel: 0.5 },
+    fire: { fire: 0.5, water: 0.5, grass: 2, ice: 2, bug: 2, rock: 0.5, dragon: 0.5, steel: 2 },
+    water: { fire: 2, water: 0.5, grass: 0.5, ground: 2, rock: 2, dragon: 0.5 },
+    electric: { water: 2, electric: 0.5, grass: 0.5, ground: 0, flying: 2, dragon: 0.5 },
+    grass: { fire: 0.5, water: 2, grass: 0.5, poison: 0.5, ground: 2, flying: 0.5, bug: 0.5, rock: 2, dragon: 0.5, steel: 0.5 },
+    ice: { fire: 0.5, water: 0.5, grass: 2, ice: 0.5, ground: 2, flying: 2, dragon: 2, steel: 0.5 },
+    fighting: { normal: 2, ice: 2, fighting: 1, poison: 0.5, flying: 0.5, psychic: 0.5, bug: 0.5, rock: 2, ghost: 0, dark: 2, steel: 2, fairy: 0.5 },
+    poison: { grass: 2, poison: 0.5, ground: 0.5, rock: 0.5, ghost: 0.5, steel: 0, fairy: 2 },
+    ground: { fire: 2, electric: 2, grass: 0.5, poison: 2, flying: 0, bug: 0.5, rock: 2, steel: 2 },
+    flying: { electric: 0.5, grass: 2, fighting: 2, bug: 2, rock: 0.5, steel: 0.5 },
+    psychic: { fighting: 2, poison: 2, psychic: 0.5, dark: 0, steel: 0.5 },
+    bug: { fire: 0.5, fighting: 0.5, poison: 0.5, flying: 0.5, grass: 2, psychic: 2, ghost: 0.5, dark: 2, steel: 0.5, fairy: 0.5 },
+    rock: { fire: 2, ice: 2, fighting: 0.5, ground: 0.5, flying: 2, bug: 2, steel: 0.5 },
+    ghost: { normal: 0, psychic: 2, ghost: 2, dark: 0.5 },
+    dragon: { dragon: 2, steel: 0.5, fairy: 0 },
+    dark: { fighting: 0.5, psychic: 2, ghost: 2, dark: 0.5, fairy: 0.5 },
+    steel: { fire: 0.5, water: 0.5, electric: 0.5, ice: 2, rock: 2, steel: 0.5, fairy: 2 },
+    fairy: { fire: 0.5, fighting: 2, poison: 0.5, dragon: 2, dark: 2, steel: 0.5 }
 };
+
+const allTypes = ['normal', 'fire', 'water', 'electric', 'grass', 'ice', 'fighting', 'poison', 'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy'];
+
+// Modal control helpers
+function openModalLoading() {
+    const modal = document.getElementById('pokemonModal');
+    const loading = document.getElementById('modalLoading');
+    const content = document.getElementById('modalContent');
+    
+    loading.innerHTML = `
+        <div class="spinner"></div>
+        <p>Cargando datos del Pokémon...</p>
+    `;
+    
+    loading.style.display = 'flex';
+    content.style.display = 'none';
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    const modal = document.getElementById('pokemonModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function showModalError(message) {
+    const loading = document.getElementById('modalLoading');
+    loading.innerHTML = `
+        <div class="error-message" style="text-align: center; padding: 20px;">
+            <div style="font-size: 3em; color: #dc2626; font-weight: bold; margin-bottom: 10px;">!</div>
+            <p style="margin: 15px 0; color: #dc2626; font-weight: 600;">${message}</p>
+            <button onclick="closeModal()" class="search-btn" style="margin-top: 10px;">Cerrar</button>
+        </div>
+    `;
+}
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
     initializeTabs();
     loadPokemonTypes();
+    setupCustomDropdowns();
     loadPokemonNames();
     setupEventListeners();
 });
@@ -67,7 +104,26 @@ function initializeTabs() {
     });
 }
 
-// Load Pokémon types into dropdown
+// Dynamic style changes and element icon updates for type selectors
+function updateTypeSelectUI(selectEl, badgeId, iconId) {
+    const val = selectEl.value;
+    const badge = document.getElementById(badgeId);
+    const icon = document.getElementById(iconId);
+    if (!badge || !icon) return;
+    
+    if (val && typeColors[val]) {
+        badge.style.backgroundColor = typeColors[val];
+        badge.classList.remove('empty');
+        icon.src = `https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${val}.svg`;
+    } else {
+        badge.style.backgroundColor = '';
+        badge.classList.add('empty');
+        // Simple generic grey circle SVG placeholder
+        icon.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'></circle></svg>";
+    }
+}
+
+// Load Pokémon types into dropdowns with Spanish translation and element icons
 async function loadPokemonTypes() {
     try {
         const response = await fetch('https://pokeapi.co/api/v2/type/');
@@ -75,17 +131,47 @@ async function loadPokemonTypes() {
         const typeSelect = document.getElementById('pokemonType');
         const typeSelect2 = document.getElementById('pokemonType2');
         
+        if (!typeSelect || !typeSelect2) return;
+        
+        // Reset selections
+        typeSelect.innerHTML = '<option value="">Tipo principal...</option>';
+        typeSelect2.innerHTML = '<option value="">Tipo secundario (opcional)...</option>';
+        
+        const typeDetails = {
+            normal: { name: 'Normal', icon: '⚪' },
+            fighting: { name: 'Lucha', icon: '🥊' },
+            flying: { name: 'Volador', icon: '🦅' },
+            poison: { name: 'Veneno', icon: '☠️' },
+            ground: { name: 'Tierra', icon: '🏜️' },
+            rock: { name: 'Roca', icon: '🪨' },
+            bug: { name: 'Bicho', icon: '🐛' },
+            ghost: { name: 'Fantasma', icon: '👻' },
+            steel: { name: 'Acero', icon: '⚙️' },
+            fire: { name: 'Fuego', icon: '🔥' },
+            water: { name: 'Agua', icon: '💧' },
+            grass: { name: 'Planta', icon: '🍃' },
+            electric: { name: 'Eléctrico', icon: '⚡' },
+            psychic: { name: 'Psíquico', icon: '🔮' },
+            ice: { name: 'Hielo', icon: '❄️' },
+            dragon: { name: 'Dragón', icon: '🐲' },
+            dark: { name: 'Siniestro', icon: '🌑' },
+            fairy: { name: 'Hada', icon: '🧚' }
+        };
+        
         data.results.forEach(type => {
+            const info = typeDetails[type.name];
+            if (!info) return; // Skip unknown / shadow types
+            
             // First dropdown
             const option = document.createElement('option');
             option.value = type.name;
-            option.textContent = type.name.charAt(0).toUpperCase() + type.name.slice(1);
+            option.textContent = `${info.name} ${info.icon}`;
             typeSelect.appendChild(option);
             
             // Second dropdown
             const option2 = document.createElement('option');
             option2.value = type.name;
-            option2.textContent = type.name.charAt(0).toUpperCase() + type.name.slice(1);
+            option2.textContent = `${info.name} ${info.icon}`;
             typeSelect2.appendChild(option2);
         });
     } catch (error) {
@@ -107,12 +193,15 @@ async function loadPokemonNames() {
     }
 }
 
-// Setup event listeners
 function setupEventListeners() {
     document.getElementById('fetchByIdButton').addEventListener('click', () => searchPokemonById());
     document.getElementById('fetchByNameButton').addEventListener('click', () => searchPokemonByName());
     document.getElementById('fetchByTypeButton').addEventListener('click', () => searchPokemonByType());
-    document.getElementById('fetchRandomButton').addEventListener('click', () => searchRandomPokemon());
+    
+    const randomPokeball = document.getElementById('randomPokeball');
+    if (randomPokeball) {
+        randomPokeball.addEventListener('click', () => searchRandomPokemon());
+    }
     
     // Enter key support
     document.getElementById('pokemonId').addEventListener('keypress', (e) => {
@@ -124,74 +213,251 @@ function setupEventListeners() {
     
     // Autocomplete functionality
     setupAutocomplete();
+
+    // Modal close listeners
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('modalOverlay').addEventListener('click', closeModal);
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+    });
 }
 
 // Search by ID
 async function searchPokemonById() {
     const pokemonId = document.getElementById('pokemonId').value;
-    const pokemonInfoDiv = document.getElementById('pokemonInfo');
     
     if (!pokemonId || pokemonId < 1 || pokemonId > 1010) {
-        pokemonInfoDiv.innerHTML = '<p>Por favor, ingresa un ID válido (1-1010).</p>';
+        alert('Por favor, ingresa un ID válido (1-1010).');
         return;
     }
     
-    showLoading();
+    openModalLoading();
     
     try {
         const pokemon = await fetchPokemonData(pokemonId);
-        displayPokemon(pokemon);
+        await displayPokemon(pokemon);
     } catch (error) {
-        pokemonInfoDiv.innerHTML = '<p>Error al obtener los datos. Verifica el ID e intenta de nuevo.</p>';
+        showModalError('Error al obtener los datos. Verifica el ID e intenta de nuevo.');
     }
 }
 
 // Search by name
 async function searchPokemonByName() {
     const pokemonName = document.getElementById('pokemonName').value.toLowerCase().trim();
-    const pokemonInfoDiv = document.getElementById('pokemonInfo');
     
     if (!pokemonName) {
-        pokemonInfoDiv.innerHTML = '<p>Por favor, ingresa el nombre de un Pokémon.</p>';
+        alert('Por favor, ingresa el nombre de un Pokémon.');
         return;
     }
     
-    showLoading();
+    openModalLoading();
     
     try {
         const pokemon = await fetchPokemonData(pokemonName);
-        displayPokemon(pokemon);
+        await displayPokemon(pokemon);
     } catch (error) {
-        pokemonInfoDiv.innerHTML = '<p>Pokémon no encontrado. Verifica el nombre e intenta de nuevo.</p>';
+        showModalError('Pokémon no encontrado. Verifica el nombre e intenta de nuevo.');
     }
 }
 
 // Search random Pokemon
 async function searchRandomPokemon() {
-    const pokemonInfoDiv = document.getElementById('pokemonInfo');
+    const pokeball = document.getElementById('randomPokeball');
+    if (pokeball) {
+        pokeball.classList.add('spinning');
+        // Wait 750ms for spin animation to play out
+        await new Promise(resolve => setTimeout(resolve, 750));
+        pokeball.classList.remove('spinning');
+    }
     
-    showLoading();
-    document.getElementById('pokemonList').innerHTML = '';
+    openModalLoading();
     
     try {
-        // Generate random ID between 1 and 1010
         const randomId = Math.floor(Math.random() * 1010) + 1;
         const pokemon = await fetchPokemonData(randomId);
-        displayPokemon(pokemon);
+        await displayPokemon(pokemon);
     } catch (error) {
-        pokemonInfoDiv.innerHTML = '<p>Error al obtener Pokémon aleatorio. Intenta de nuevo.</p>';
+        showModalError('Error al obtener Pokémon aleatorio. Intenta de nuevo.');
+    }
+}
+
+// Search by type
+// Selected type values for custom dropdown selectors
+let selectedType1 = '';
+let selectedType2 = '';
+
+// Toggle dynamic custom type selects
+function setupCustomDropdowns() {
+    const trigger1 = document.getElementById('typeTrigger1');
+    const container1 = document.getElementById('typeSelectContainer1');
+    const trigger2 = document.getElementById('typeTrigger2');
+    const container2 = document.getElementById('typeSelectContainer2');
+    
+    if (!trigger1 || !trigger2) return;
+    
+    trigger1.addEventListener('click', function(e) {
+        e.stopPropagation();
+        container2.classList.remove('active');
+        container1.classList.toggle('active');
+    });
+    
+    trigger2.addEventListener('click', function(e) {
+        e.stopPropagation();
+        container1.classList.remove('active');
+        container2.classList.toggle('active');
+    });
+    
+    // Close dropdowns on outside click
+    document.addEventListener('click', function() {
+        if (container1) container1.classList.remove('active');
+        if (container2) container2.classList.remove('active');
+    });
+}
+
+// Load Pokémon types into dynamic custom dropdown options panels
+function loadPokemonTypes() {
+    const panel1 = document.getElementById('optionsPanel1');
+    const panel2 = document.getElementById('optionsPanel2');
+    if (!panel1 || !panel2) return;
+    
+    panel1.innerHTML = '';
+    panel2.innerHTML = '';
+    
+    const typesList = [
+        { id: 'normal', name: 'Normal' },
+        { id: 'fire', name: 'Fuego' },
+        { id: 'water', name: 'Agua' },
+        { id: 'electric', name: 'Eléctrico' },
+        { id: 'grass', name: 'Planta' },
+        { id: 'ice', name: 'Hielo' },
+        { id: 'fighting', name: 'Lucha' },
+        { id: 'poison', name: 'Veneno' },
+        { id: 'ground', name: 'Tierra' },
+        { id: 'flying', name: 'Volador' },
+        { id: 'psychic', name: 'Psíquico' },
+        { id: 'bug', name: 'Bicho' },
+        { id: 'rock', name: 'Roca' },
+        { id: 'ghost', name: 'Fantasma' },
+        { id: 'dragon', name: 'Dragón' },
+        { id: 'dark', name: 'Siniestro' },
+        { id: 'steel', name: 'Acero' },
+        { id: 'fairy', name: 'Hada' }
+    ];
+    
+    // Add default reset option for select 1
+    const reset1 = document.createElement('div');
+    reset1.className = 'custom-option-item selected';
+    reset1.setAttribute('data-value', '');
+    reset1.innerHTML = `
+        <span class="type-icon-badge empty" style="width: 28px; height: 28px;">
+            <img class="dropdown-type-icon" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'></circle></svg>" style="width: 14px; height: 14px;">
+        </span>
+        <span>Tipo principal...</span>
+    `;
+    reset1.addEventListener('click', () => selectCustomOption(1, '', 'Tipo principal...', '#e2e8f0', reset1));
+    panel1.appendChild(reset1);
+    
+    // Add default reset option for select 2
+    const reset2 = document.createElement('div');
+    reset2.className = 'custom-option-item selected';
+    reset2.setAttribute('data-value', '');
+    reset2.innerHTML = `
+        <span class="type-icon-badge empty" style="width: 28px; height: 28px;">
+            <img class="dropdown-type-icon" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'></circle></svg>" style="width: 14px; height: 14px;">
+        </span>
+        <span>Ninguno</span>
+    `;
+    reset2.addEventListener('click', () => selectCustomOption(2, '', 'Ninguno', '#e2e8f0', reset2));
+    panel2.appendChild(reset2);
+    
+    // Populating list items
+    typesList.forEach(type => {
+        const color = typeColors[type.id] || '#68A090';
+        
+        // Option item for Selector 1
+        const opt1 = document.createElement('div');
+        opt1.className = 'custom-option-item';
+        opt1.setAttribute('data-value', type.id);
+        opt1.innerHTML = `
+            <span class="type-icon-badge" style="background-color: ${color}; width: 28px; height: 28px;">
+                <img class="dropdown-type-icon" src="https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${type.id}.svg" style="width: 14px; height: 14px;">
+            </span>
+            <span>${type.name}</span>
+        `;
+        opt1.addEventListener('click', () => selectCustomOption(1, type.id, type.name, color, opt1));
+        panel1.appendChild(opt1);
+        
+        // Option item for Selector 2
+        const opt2 = document.createElement('div');
+        opt2.className = 'custom-option-item';
+        opt2.setAttribute('data-value', type.id);
+        opt2.innerHTML = `
+            <span class="type-icon-badge" style="background-color: ${color}; width: 28px; height: 28px;">
+                <img class="dropdown-type-icon" src="https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${type.id}.svg" style="width: 14px; height: 14px;">
+            </span>
+            <span>${type.name}</span>
+        `;
+        opt2.addEventListener('click', () => selectCustomOption(2, type.id, type.name, color, opt2));
+        panel2.appendChild(opt2);
+    });
+}
+
+function selectCustomOption(dropdownId, value, label, color, element) {
+    const textEl = document.getElementById(`textTrigger${dropdownId}`);
+    const badgeEl = document.getElementById(`badgeTrigger${dropdownId}`);
+    const iconEl = document.getElementById(`iconTrigger${dropdownId}`);
+    const panelEl = document.getElementById(`optionsPanel${dropdownId}`);
+    
+    if (dropdownId === 1) {
+        selectedType1 = value;
+    } else {
+        selectedType2 = value;
+    }
+    
+    // Update Trigger Field UI
+    if (textEl) {
+        textEl.textContent = label;
+        textEl.style.color = value ? '#1e293b' : '#475569';
+    }
+    
+    if (badgeEl) {
+        badgeEl.style.backgroundColor = value ? color : '';
+        if (value) {
+            badgeEl.classList.remove('empty');
+        } else {
+            badgeEl.classList.add('empty');
+        }
+    }
+    
+    if (iconEl) {
+        if (value) {
+            iconEl.src = `https://raw.githubusercontent.com/duiker101/pokemon-type-svg-icons/master/icons/${value}.svg`;
+        } else {
+            iconEl.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'></circle></svg>";
+        }
+    }
+    
+    // Toggle Highlight classes
+    if (panelEl) {
+        panelEl.querySelectorAll('.custom-option-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+        if (element) {
+            element.classList.add('selected');
+        } else {
+            const resetItem = panelEl.querySelector('.custom-option-item[data-value=""]');
+            if (resetItem) resetItem.classList.add('selected');
+        }
     }
 }
 
 // Search by type
 async function searchPokemonByType() {
-    const selectedType = document.getElementById('pokemonType').value;
-    const selectedType2 = document.getElementById('pokemonType2').value;
     const pokemonListDiv = document.getElementById('pokemonList');
     const pokemonInfoDiv = document.getElementById('pokemonInfo');
     
-    if (!selectedType) {
-        pokemonInfoDiv.innerHTML = '<p>Por favor, selecciona al menos un tipo.</p>';
+    if (!selectedType1) {
+        alert('Por favor, selecciona al menos un tipo.');
         return;
     }
     
@@ -202,10 +468,18 @@ async function searchPokemonByType() {
         let pokemonList = [];
         let titleText = '';
         
+        const typeNamesMap = {
+            normal: 'Normal', fire: 'Fuego', water: 'Agua', electric: 'Eléctrico',
+            grass: 'Planta', ice: 'Hielo', fighting: 'Lucha', poison: 'Veneno',
+            ground: 'Tierra', flying: 'Volador', psychic: 'Psíquico', bug: 'Bicho',
+            rock: 'Roca', ghost: 'Fantasma', dragon: 'Dragón', dark: 'Siniestro',
+            steel: 'Acero', fairy: 'Hada'
+        };
+        
         if (selectedType2) {
             // Dual type search
             const [response1, response2] = await Promise.all([
-                fetch(`https://pokeapi.co/api/v2/type/${selectedType}`),
+                fetch(`https://pokeapi.co/api/v2/type/${selectedType1}`),
                 fetch(`https://pokeapi.co/api/v2/type/${selectedType2}`)
             ]);
             
@@ -223,14 +497,14 @@ async function searchPokemonByType() {
             );
             
             pokemonList = dualTypePokemon;
-            titleText = `Pokémon de tipo ${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} y ${selectedType2.charAt(0).toUpperCase() + selectedType2.slice(1)}`;
+            titleText = `Pokémon de tipo ${typeNamesMap[selectedType1]} y ${typeNamesMap[selectedType2]}`;
         } else {
             // Single type search
-            const response = await fetch(`https://pokeapi.co/api/v2/type/${selectedType}`);
+            const response = await fetch(`https://pokeapi.co/api/v2/type/${selectedType1}`);
             const typeData = await response.json();
             
             pokemonList = typeData.pokemon;
-            titleText = `Pokémon de tipo ${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)}`;
+            titleText = `Pokémon de tipo ${typeNamesMap[selectedType1]}`;
         }
         
         pokemonListDiv.innerHTML = `<h3>${titleText} (${pokemonList.length} encontrados)</h3>`;
@@ -258,13 +532,12 @@ async function searchPokemonByType() {
         document.querySelectorAll('.pokemon-card').forEach(card => {
             card.addEventListener('click', async function() {
                 const pokemonName = this.getAttribute('data-pokemon');
-                showLoading();
+                openModalLoading();
                 try {
                     const pokemon = await fetchPokemonData(pokemonName);
-                    displayPokemon(pokemon);
-                    document.getElementById('pokemonInfo').scrollIntoView({ behavior: 'smooth' });
+                    await displayPokemon(pokemon);
                 } catch (error) {
-                    console.error('Error loading pokemon details:', error);
+                    showModalError('Error al obtener detalles del Pokémon.');
                 }
             });
         });
@@ -288,45 +561,53 @@ function getPokemonRegion(pokemonId) {
     return 'Desconocida';
 }
 
-// Calculate type effectiveness for a Pokemon
-function calculateTypeEffectiveness(pokemonTypes) {
-    const weaknesses = new Set();
-    const resistances = new Set();
-    const immunities = new Set();
-    const strongAgainst = new Set();
+// Calculate precise defensive type effectiveness multipliers
+function getDefensiveEffectiveness(t1, t2 = null) {
+    const results = {
+        '4': [],
+        '2': [],
+        '0.5': [],
+        '0.25': [],
+        '0': []
+    };
     
-    pokemonTypes.forEach(type => {
-        const effectiveness = typeEffectiveness[type];
-        if (effectiveness) {
-            // Add weaknesses (what this Pokemon is weak to)
-            effectiveness.weak.forEach(weakType => weaknesses.add(weakType));
-            // Add resistances (what this Pokemon resists)
-            effectiveness.strong.forEach(strongType => resistances.add(strongType));
-            // Add immunities (what this Pokemon is immune to)
-            effectiveness.immune.forEach(immuneType => immunities.add(immuneType));
+    allTypes.forEach(attacker => {
+        let mult = 1;
+        
+        // Attacker vs Type 1
+        if (typeChart[attacker] && typeChart[attacker][t1] !== undefined) {
+            mult *= typeChart[attacker][t1];
         }
         
-        // Find what this Pokemon's attacks are strong against
-        Object.keys(typeEffectiveness).forEach(defenderType => {
-            const defenderData = typeEffectiveness[defenderType];
-            if (defenderData.weak.includes(type)) {
-                strongAgainst.add(defenderType);
-            }
-        });
+        // Attacker vs Type 2
+        if (t2 && typeChart[attacker] && typeChart[attacker][t2] !== undefined) {
+            mult *= typeChart[attacker][t2];
+        }
+        
+        if (mult === 4) results['4'].push(attacker);
+        else if (mult === 2) results['2'].push(attacker);
+        else if (mult === 0.5) results['0.5'].push(attacker);
+        else if (mult === 0.25) results['0.25'].push(attacker);
+        else if (mult === 0) results['0'].push(attacker);
     });
     
-    // Remove overlaps (if a type appears in both weak and strong, it's neutral)
-    const finalWeaknesses = [...weaknesses].filter(type => !resistances.has(type) && !immunities.has(type));
-    const finalResistances = [...resistances].filter(type => !weaknesses.has(type) && !immunities.has(type));
-    const finalImmunities = [...immunities];
-    const finalStrongAgainst = [...strongAgainst];
+    return results;
+}
+
+// Calculate offensive coverage strengths for STAB moves
+function getOffensiveStrengths(t1, t2 = null) {
+    const strongAgainst = new Set();
     
-    return {
-        weaknesses: finalWeaknesses,
-        resistances: finalResistances,
-        immunities: finalImmunities,
-        strongAgainst: finalStrongAgainst
-    };
+    allTypes.forEach(defender => {
+        if (typeChart[t1] && typeChart[t1][defender] === 2) {
+            strongAgainst.add(defender);
+        }
+        if (t2 && typeChart[t2] && typeChart[t2][defender] === 2) {
+            strongAgainst.add(defender);
+        }
+    });
+    
+    return Array.from(strongAgainst);
 }
 
 // Fetch Pokemon data from API
@@ -336,179 +617,297 @@ async function fetchPokemonData(identifier) {
     return await response.json();
 }
 
-// Display individual Pokemon
-function displayPokemon(pokemon) {
-    const pokemonInfoDiv = document.getElementById('pokemonInfo');
-    const abilities = pokemon.abilities.map(ability => ability.ability.name).join(', ');
+// Fetch Spanish flavor text
+async function fetchPokemonFlavorText(pokemonId) {
+    try {
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonId}`);
+        if (!response.ok) return 'No hay descripción disponible para este Pokémon.';
+        const data = await response.json();
+        
+        // Find Spanish description
+        let spanishEntry = data.flavor_text_entries.find(entry => entry.language.name === 'es');
+        if (spanishEntry) {
+            return spanishEntry.flavor_text.replace(/\f/g, ' ').replace(/\n/g, ' ');
+        }
+        
+        // Fallback to English description
+        let englishEntry = data.flavor_text_entries.find(entry => entry.language.name === 'en');
+        if (englishEntry) {
+            return englishEntry.flavor_text.replace(/\f/g, ' ').replace(/\n/g, ' ');
+        }
+        
+        return 'No hay descripción disponible para este Pokémon.';
+    } catch (e) {
+        console.error('Error fetching flavor text:', e);
+        return 'No se pudo cargar la descripción del Pokémon.';
+    }
+}
+
+// Display individual Pokemon details in a premium modal
+async function displayPokemon(pokemon) {
+    const modalContent = document.getElementById('modalContent');
+    const modalLoading = document.getElementById('modalLoading');
+    
+    // Fetch flavor text description
+    const flavorText = await fetchPokemonFlavorText(pokemon.id);
+    
     const types = pokemon.types.map(type => type.type.name);
+    const primaryType = types[0];
+    const secondaryType = types[1] || null;
     
     const typesBadges = types.map(type => 
         `<span class="type-badge" style="background-color: ${typeColors[type] || '#68A090'}; color: white;">${type}</span>`
     ).join(' ');
     
-    const statsHtml = pokemon.stats.map(stat => {
-        const statClass = stat.stat.name.replace('-', '');
-        return `<div class="stat-item stat-${statClass}">
-            <div class="stat-name">${stat.stat.name}</div>
-            <div class="stat-value">${stat.base_stat}</div>
-        </div>`;
-    }).join('');
+    // Calculate stats and Base Stat Total (BST)
+    let bst = 0;
+    pokemon.stats.forEach(s => {
+        bst += s.base_stat;
+    });
     
     // Calculate type effectiveness
-    const effectiveness = calculateTypeEffectiveness(types);
+    const effectiveness = getDefensiveEffectiveness(primaryType, secondaryType);
+    const offensiveStrengths = getOffensiveStrengths(primaryType, secondaryType);
     
-    // Create type effectiveness badges
-    const createTypeBadges = (typeList, className) => {
-        return typeList.map(type => 
-            `<span class="type-badge ${className}" style="background-color: ${typeColors[type] || '#68A090'}; color: white;">${type}</span>`
-        ).join(' ');
+    // Apply dynamic type color gradient to header
+    const headerClass = `modal-pokemon-header modal-type-${primaryType}`;
+    
+    // Get high-res artwork images
+    const normalImg = pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.other.home.front_default || pokemon.sprites.front_default;
+    const shinyImg = pokemon.sprites.other['official-artwork'].front_shiny || pokemon.sprites.other.home.front_shiny || pokemon.sprites.front_shiny || normalImg;
+    
+    // Store current Pokemon data for shiny toggle inside modal
+    currentPokemonData = {
+        ...pokemon,
+        normalImg,
+        shinyImg
     };
-    
-    const weaknessBadges = createTypeBadges(effectiveness.weaknesses, 'weakness');
-    const resistanceBadges = createTypeBadges(effectiveness.resistances, 'resistance');
-    const immunityBadges = createTypeBadges(effectiveness.immunities, 'immunity');
-    const strongAgainstBadges = createTypeBadges(effectiveness.strongAgainst, 'strong-against');
-    
-    // Store current Pokemon data for shiny toggle
-    currentPokemonData = pokemon;
     isShinyMode = false;
     
-    pokemonInfoDiv.innerHTML = `
-        <div class="pokemon-card-detailed">
-            <h2>${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)} #${pokemon.id}</h2>
-            <div class="pokemon-image-container">
-                <img id="pokemon-image" src="${pokemon.sprites.front_default}" alt="${pokemon.name}">
-                <button id="shiny-toggle" class="shiny-toggle-btn" onclick="toggleShiny()">
-                    <span class="toggle-icon">✨</span>
-                    <span class="toggle-text">Shiny</span>
-                </button>
-            </div>
-            
-            <div class="pokemon-info-section">
-                <div class="info-group">
-                    <h4>Información Básica</h4>
-                    <div class="pokemon-info-grid">
-                        <div class="pokemon-info-item combined-item">
-                            <div class="combined-content">
-                                <div class="info-part">
-                                    <strong>ID Nacional</strong>
-                                    <span>#${pokemon.id}</span>
-                                </div>
-                                <div class="info-part">
-                                    <strong>Tipos</strong>
-                                    <span>${typesBadges}</span>
-                                </div>
+    const abilitiesList = pokemon.abilities.map(a => a.ability.name.replace(/-/g, ' ')).join(', ');
+    
+    // Render the tabs and details inside the modal
+    modalContent.innerHTML = `
+        <div class="${headerClass}">
+            <h2>${pokemon.name}</h2>
+            <div class="modal-pokemon-id">N.º de Pokédex #${pokemon.id}</div>
+        </div>
+        
+        <div class="modal-tabs">
+            <button class="modal-tab-btn active" data-tab="resumen">Resumen</button>
+            <button class="modal-tab-btn" data-tab="estadisticas">Estadísticas</button>
+            <button class="modal-tab-btn" data-tab="efectividades">Efectividades</button>
+        </div>
+        
+        <div class="modal-body">
+            <!-- PESTAÑA RESUMEN -->
+            <div id="tab-resumen" class="modal-tab-content active">
+                <div class="summary-layout">
+                    <div class="modal-image-panel">
+                        <img id="modal-pokemon-image" class="modal-pokemon-img" src="${normalImg}" alt="${pokemon.name}">
+                        <button id="modal-shiny-toggle" class="modal-shiny-btn">
+                            Ver Shiny
+                        </button>
+                    </div>
+                    <div class="modal-info-panel">
+                        <p class="pokemon-description">"${flavorText}"</p>
+                        <div class="info-grid">
+                            <div class="info-box">
+                                <div class="info-label">Tipos</div>
+                                <div class="info-value">${typesBadges}</div>
                             </div>
-                        </div>
-                        <div class="pokemon-info-item combined-item">
-                            <div class="combined-content">
-                                <div class="info-part">
-                                    <strong>Altura</strong>
-                                    <span>${pokemon.height / 10} m</span>
-                                </div>
-                                <div class="info-part">
-                                    <strong>Peso</strong>
-                                    <span>${pokemon.weight / 10} kg</span>
-                                </div>
+                            <div class="info-box">
+                                <div class="info-label">Región</div>
+                                <div class="info-value">${getPokemonRegion(pokemon.id)}</div>
+                            </div>
+                            <div class="info-box">
+                                <div class="info-label">Altura</div>
+                                <div class="info-value">${pokemon.height / 10} m</div>
+                            </div>
+                            <div class="info-box">
+                                <div class="info-label">Peso</div>
+                                <div class="info-value">${pokemon.weight / 10} kg</div>
+                            </div>
+                            <div class="info-box full-width">
+                                <div class="info-label">Habilidades</div>
+                                <div class="info-value" style="text-transform: capitalize;">${abilitiesList}</div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            
+            <!-- PESTAÑA ESTADÍSTICAS -->
+            <div id="tab-estadisticas" class="modal-tab-content">
+                <div class="bst-container">
+                    <div class="bst-label">Base Stat Total (BST)</div>
+                    <div class="bst-value">${bst}</div>
+                </div>
+                <div class="stats-detailed-list">
+                    ${pokemon.stats.map(s => {
+                        const statNameMap = {
+                            'hp': 'PS',
+                            'attack': 'Ataque',
+                            'defense': 'Defensa',
+                            'special-attack': 'At. Esp.',
+                            'special-defense': 'Def. Esp.',
+                            'speed': 'Velocidad'
+                        };
+                        const cleanName = s.stat.name;
+                        const label = statNameMap[cleanName] || cleanName;
+                        const value = s.base_stat;
+                        
+                        // Calculate ranges at Level 100 for competitive
+                        let min, max;
+                        if (cleanName === 'hp') {
+                            if (pokemon.id === 292) { // Shedinja
+                                min = 1;
+                                max = 1;
+                            } else {
+                                min = Math.floor(value * 2 + 110);
+                                max = Math.floor(value * 2 + 204);
+                            }
+                        } else {
+                            min = Math.floor((value * 2 + 5) * 0.9);
+                            max = Math.floor((value * 2 + 99) * 1.1);
+                        }
+                        
+                        // Capped at 200 base for visual bar representation
+                        const barPct = Math.min(100, (value / 200) * 100);
+                        
+                        // Classes maps to match styles.css color gradients
+                        const cssClassMap = {
+                            'hp': 'stat-hp',
+                            'attack': 'stat-attack',
+                            'defense': 'stat-defense',
+                            'special-attack': 'stat-specialattack',
+                            'special-defense': 'stat-specialdefense',
+                            'speed': 'stat-speed'
+                        };
+                        const barClass = cssClassMap[cleanName] || 'stat-speed';
+                        
+                        return `
+                            <div class="stat-row-detailed">
+                                <div class="stat-label-detailed">${label}</div>
+                                <div class="stat-val-detailed">${value}</div>
+                                <div class="stat-bar-container">
+                                    <div class="stat-bar-fill ${barClass}" style="width: ${barPct}%;"></div>
+                                </div>
+                                <div class="stat-range-lv100">
+                                    <span class="range-min">Mín: ${min}</span>
+                                    <span class="range-max">Máx: ${max}</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+            
+            <!-- PESTAÑA EFECTIVIDADES -->
+            <div id="tab-efectividades" class="modal-tab-content">
+                <h3 class="effectiveness-section-title">Daño Recibido (Defensa)</h3>
+                <div class="effectiveness-group-grid">
+                    ${effectiveness['4'].length > 0 ? `
+                        <div class="mult-row">
+                            <span class="mult-badge-label mult-4x">4x</span>
+                            <div class="mult-types-list">
+                                ${effectiveness['4'].map(t => `<span class="type-badge" style="background-color: ${typeColors[t]}; color: white;">${t}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${effectiveness['2'].length > 0 ? `
+                        <div class="mult-row">
+                            <span class="mult-badge-label mult-2x">2x</span>
+                            <div class="mult-types-list">
+                                ${effectiveness['2'].map(t => `<span class="type-badge" style="background-color: ${typeColors[t]}; color: white;">${t}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${effectiveness['0.5'].length > 0 ? `
+                        <div class="mult-row">
+                            <span class="mult-badge-label mult-0-5x">0.5x</span>
+                            <div class="mult-types-list">
+                                ${effectiveness['0.5'].map(t => `<span class="type-badge" style="background-color: ${typeColors[t]}; color: white;">${t}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${effectiveness['0.25'].length > 0 ? `
+                        <div class="mult-row">
+                            <span class="mult-badge-label mult-0-25x">0.25x</span>
+                            <div class="mult-types-list">
+                                ${effectiveness['0.25'].map(t => `<span class="type-badge" style="background-color: ${typeColors[t]}; color: white;">${t}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${effectiveness['0'].length > 0 ? `
+                        <div class="mult-row">
+                            <span class="mult-badge-label mult-0x">0x</span>
+                            <div class="mult-types-list">
+                                ${effectiveness['0'].map(t => `<span class="type-badge" style="background-color: ${typeColors[t]}; color: white;">${t}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${Object.values(effectiveness).every(arr => arr.length === 0) ? `
+                        <p style="color: #64748b; font-style: italic; text-align: center;">Daño neutro (1x) de todos los tipos elementales.</p>
+                    ` : ''}
                 </div>
                 
-                <div class="info-group">
-                    <div class="pokemon-info-single">
-                        <div class="pokemon-info-item single-item">
-                            <strong>Habilidades</strong>
-                            <span>${abilities}</span>
-                        </div>
+                <h3 class="effectiveness-section-title">Cobertura Ofensiva Súper Efectiva (STAB)</h3>
+                <div class="offensive-info">
+                    Los ataques con bonus por tipo del mismo Pokémon (**${types.map(t => t.charAt(0).toUpperCase() + t.slice(1)).join(' o ')}**) causarán **2x de daño** contra oponentes de tipo:
+                    <div class="mult-types-list" style="margin-top: 10px;">
+                        ${offensiveStrengths.length > 0 
+                            ? offensiveStrengths.map(t => `<span class="type-badge" style="background-color: ${typeColors[t]}; color: white;">${t}</span>`).join('') 
+                            : '<span style="color: #64748b; font-style: italic;">Ninguno</span>'
+                        }
                     </div>
-                </div>
-                
-                <div class="info-group">
-                    <div class="pokemon-info-single">
-                        <div class="pokemon-info-item single-item">
-                            <strong>Región de Origen</strong>
-                            <span>${getPokemonRegion(pokemon.id)}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="pokemon-stats">
-                <h3>📊 Estadísticas Base</h3>
-                <div class="stats-grid">
-                    ${statsHtml}
-                </div>
-            </div>
-            
-            <div class="type-effectiveness-container">
-                <h3>⚔️ Efectividad de Tipos</h3>
-                <div class="effectiveness-grid">
-                    ${effectiveness.strongAgainst.length > 0 ? `
-                        <div class="effectiveness-card strong-against-card">
-                            <div class="effectiveness-header">
-                                <span class="effectiveness-icon">🗡️</span>
-                                <strong>Fuerte contra</strong>
-                            </div>
-                            <div class="effectiveness-types">${strongAgainstBadges}</div>
-                        </div>
-                    ` : ''}
-                    ${effectiveness.weaknesses.length > 0 ? `
-                        <div class="effectiveness-card weakness-card">
-                            <div class="effectiveness-header">
-                                <span class="effectiveness-icon">🛡️</span>
-                                <strong>Débil contra</strong>
-                            </div>
-                            <div class="effectiveness-types">${weaknessBadges}</div>
-                        </div>
-                    ` : ''}
-                    ${effectiveness.resistances.length > 0 ? `
-                        <div class="effectiveness-card resistance-card">
-                            <div class="effectiveness-header">
-                                <span class="effectiveness-icon">💪</span>
-                                <strong>Resistente a</strong>
-                            </div>
-                            <div class="effectiveness-types">${resistanceBadges}</div>
-                        </div>
-                    ` : ''}
-                    ${effectiveness.immunities.length > 0 ? `
-                        <div class="effectiveness-card immunity-card">
-                            <div class="effectiveness-header">
-                                <span class="effectiveness-icon">🚫</span>
-                                <strong>Inmune a</strong>
-                            </div>
-                            <div class="effectiveness-types">${immunityBadges}</div>
-                        </div>
-                    ` : ''}
                 </div>
             </div>
         </div>
     `;
     
-    document.getElementById('pokemonList').innerHTML = '';
-}
-
-// Toggle between normal and shiny Pokemon sprites
-function toggleShiny() {
-    if (!currentPokemonData) return;
+    // Wire up event listener for the shiny button toggle in the modal
+    document.getElementById('modal-shiny-toggle').addEventListener('click', function() {
+        const imgEl = document.getElementById('modal-pokemon-image');
+        if (isShinyMode) {
+            imgEl.src = currentPokemonData.normalImg;
+            this.textContent = 'Ver Shiny';
+            this.classList.remove('shiny-active');
+            isShinyMode = false;
+        } else {
+            imgEl.src = currentPokemonData.shinyImg;
+            this.textContent = 'Ver Normal';
+            this.classList.add('shiny-active');
+            isShinyMode = true;
+        }
+    });
     
-    const pokemonImage = document.getElementById('pokemon-image');
-    const toggleBtn = document.getElementById('shiny-toggle');
-    const toggleText = toggleBtn.querySelector('.toggle-text');
+    // Wire up event listener for switching tabs inside the modal
+    const tabButtons = modalContent.querySelectorAll('.modal-tab-btn');
+    const tabContents = modalContent.querySelectorAll('.modal-tab-content');
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const targetTab = this.getAttribute('data-tab');
+            
+            tabButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            tabContents.forEach(c => {
+                c.classList.remove('active');
+                if (c.id === `tab-${targetTab}`) {
+                    c.classList.add('active');
+                }
+            });
+        });
+    });
     
-    if (!isShinyMode) {
-        // Switch to shiny
-        pokemonImage.src = currentPokemonData.sprites.front_shiny || currentPokemonData.sprites.front_default;
-        toggleText.textContent = 'Normal';
-        toggleBtn.classList.add('shiny-active');
-        isShinyMode = true;
-    } else {
-        // Switch to normal
-        pokemonImage.src = currentPokemonData.sprites.front_default;
-        toggleText.textContent = 'Shiny';
-        toggleBtn.classList.remove('shiny-active');
-        isShinyMode = false;
-    }
+    // Hide loader and show content
+    modalLoading.style.display = 'none';
+    modalContent.style.display = 'flex';
+    
+    // Auto scroll top inside the modal body
+    const modalBody = document.querySelector('.modal-body');
+    if (modalBody) modalBody.scrollTop = 0;
 }
 
 // Create Pokemon card for type search
@@ -596,6 +995,7 @@ function setupAutocomplete() {
             const item = document.createElement('div');
             item.className = 'autocomplete-item';
             item.innerHTML = `
+                <img class="autocomplete-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png" alt="${pokemon.name}">
                 <span class="pokemon-id">#${pokemon.id}</span>
                 <span class="pokemon-name">${pokemon.name}</span>
             `;
@@ -631,4 +1031,8 @@ function setupAutocomplete() {
 function clearResults() {
     document.getElementById('pokemonInfo').innerHTML = '';
     document.getElementById('pokemonList').innerHTML = '';
+    
+    // Reset custom dropdown values
+    selectCustomOption(1, '', 'Tipo principal...', '#e2e8f0', null);
+    selectCustomOption(2, '', 'Ninguno', '#e2e8f0', null);
 }

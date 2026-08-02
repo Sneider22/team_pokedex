@@ -40,33 +40,39 @@ h1 {
 .search-tabs {
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;
-    background: #f8f9fa;
-    border-radius: 15px;
-    padding: 5px;
+    margin-bottom: 25px;
+    background: #f1f5f9;
+    border-radius: 16px;
+    padding: 6px;
+    border: 1px solid #e2e8f0;
 }
 
 .tab-button {
     flex: 1;
-    padding: 12px 20px;
+    padding: 12px 18px;
     border: none;
     background: transparent;
-    color: #6c757d;
+    color: #64748b;
     cursor: pointer;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    font-weight: 500;
+    border-radius: 12px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 600;
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 
 .tab-button.active {
-    background: #007bff;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     color: white;
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
 }
 
 .tab-button:hover:not(.active) {
-    background: #e9ecef;
-    color: #495057;
+    background: #e2e8f0;
+    color: #1e293b;
 }
 
 /* Search Content */
@@ -95,35 +101,185 @@ h1 {
 /* Input Styles */
 input, select {
     padding: 15px 20px;
-    border: 2px solid #e9ecef;
-    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
     font-size: 16px;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     min-width: 250px;
+    color: #1e293b;
+    background-color: #f8fafc;
+    font-weight: 500;
+}
+
+input::placeholder {
+    color: #94a3b8;
 }
 
 input:focus, select:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    border-color: #3b82f6;
+    background-color: white;
+    box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.1), 0 0 0 4px rgba(59, 130, 246, 0.15);
+    transform: translateY(-1px);
 }
 
-.type-dropdown {
-    background: white;
-    cursor: pointer;
-}
-
+/* Dual Type Selectors & Dynamic Custom Dropdowns */
 .dual-type-container {
     display: flex;
     gap: 15px;
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
+    width: 100%;
+    margin: 15px 0;
 }
 
-.dual-type-container select {
+.custom-select-container {
+    position: relative;
     flex: 1;
-    min-width: 200px;
+    min-width: 240px;
+}
+
+.custom-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: white;
+    padding: 8px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+}
+
+.custom-select-trigger:focus,
+.custom-select-container.active .custom-select-trigger {
+    border-color: #3b82f6;
+    box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.1), 0 0 0 4px rgba(59, 130, 246, 0.15);
+    transform: translateY(-1px);
+}
+
+.trigger-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.trigger-text {
+    font-size: 1em;
+    font-weight: 600;
+    color: #475569;
+}
+
+.type-icon-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    flex-shrink: 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.dropdown-type-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+    transition: all 0.25s ease;
+}
+
+/* Empty placeholder styling */
+.type-icon-badge.empty {
+    background-color: #f1f5f9 !important;
+    box-shadow: none;
+}
+
+.type-icon-badge.empty .dropdown-type-icon {
+    filter: none;
+}
+
+.custom-chevron {
+    width: 10px;
+    height: 6px;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: contain;
+    transition: transform 0.25s ease;
+}
+
+.custom-select-container.active .custom-chevron {
+    transform: rotate(180deg);
+}
+
+.custom-options-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    z-index: 1000;
+    max-height: 260px;
+    overflow-y: auto;
+    display: none;
+    padding: 8px;
+    animation: dropdownFadeIn 0.2s ease;
+}
+
+@keyframes dropdownFadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.custom-select-container.active .custom-options-panel {
+    display: block;
+}
+
+.custom-option-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #475569;
+    transition: all 0.15s ease;
+    margin-bottom: 2px;
+}
+
+.custom-option-item:last-child {
+    margin-bottom: 0;
+}
+
+.custom-option-item:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.custom-option-item.selected {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+/* Scrollbar styling inside custom dropdown */
+.custom-options-panel::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-options-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-options-panel::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
 }
 
 /* Random Pokemon Styles */
@@ -161,7 +317,19 @@ input:focus, select:focus {
 .autocomplete-container {
     position: relative;
     display: inline-block;
+    min-width: 250px;
+}
+
+.autocomplete-container input {
     width: 100%;
+}
+
+/* Autocomplete Sprite Miniature */
+.autocomplete-sprite {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    margin-right: 8px;
 }
 
 .autocomplete-dropdown {
@@ -925,3 +1093,637 @@ input:focus, select:focus {
         font-size: 1em;
     }
 }
+
+/* ==========================================================================
+   MODAL PREMIUM & DETALLES COMPETITIVOS
+   ========================================================================== */
+
+/* Base de la Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+}
+
+.modal-wrapper {
+    position: relative;
+    background: white;
+    width: 90%;
+    max-width: 650px;
+    height: 620px; /* Static height for consistent size */
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+    z-index: 2100;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Hide outer scrollbar */
+    animation: modalScaleIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-content-area {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+@keyframes modalScaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 22px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 2200;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: rotate(90deg);
+}
+
+/* Spinner de Carga */
+.modal-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: #64748b;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f1f5f9;
+    border-top: 5px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Cabecera del Pokémon */
+.modal-pokemon-header {
+    padding: 35px 25px 25px 25px;
+    text-align: center;
+    color: white;
+    position: relative;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-pokemon-header h2 {
+    font-size: 2.2em;
+    margin: 0;
+    text-transform: capitalize;
+    font-weight: 800;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.modal-pokemon-id {
+    font-size: 1.1em;
+    font-weight: 600;
+    opacity: 0.9;
+    background: rgba(0, 0, 0, 0.15);
+    padding: 3px 12px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-top: 8px;
+}
+
+/* Pestañas de la Modal */
+.modal-tabs {
+    display: flex;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0 15px;
+}
+
+.modal-tab-btn {
+    flex: 1;
+    padding: 15px 10px;
+    border: none;
+    background: transparent;
+    font-size: 0.95em;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.modal-tab-btn:hover {
+    color: #1e293b;
+}
+
+.modal-tab-btn.active {
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
+}
+
+.modal-body {
+    padding: 25px;
+    background: white;
+    flex: 1;
+    overflow-y: auto; /* Scroll internally */
+}
+
+/* Custom Elegant Thin Scrollbars */
+.modal-body::-webkit-scrollbar,
+.autocomplete-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+.modal-body::-webkit-scrollbar-track,
+.autocomplete-dropdown::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 10px;
+}
+.modal-body::-webkit-scrollbar-thumb,
+.autocomplete-dropdown::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+.modal-body::-webkit-scrollbar-thumb:hover,
+.autocomplete-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+.modal-body,
+.autocomplete-dropdown {
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #cbd5e1 rgba(0, 0, 0, 0.02); /* Firefox */
+}
+
+.modal-tab-content {
+    display: none;
+    animation: tabFadeIn 0.3s ease;
+}
+
+.modal-tab-content.active {
+    display: block;
+}
+
+@keyframes tabFadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Pestaña 1: Resumen */
+.summary-layout {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 25px;
+}
+
+.modal-image-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #f8fafc;
+    border-radius: 20px;
+    padding: 20px;
+    position: relative;
+    border: 1px solid #f1f5f9;
+}
+
+.modal-pokemon-img {
+    width: 180px;
+    height: 180px;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+    transition: transform 0.3s ease;
+}
+
+.modal-image-panel:hover .modal-pokemon-img {
+    transform: scale(1.05);
+}
+
+.modal-shiny-btn {
+    margin-top: 15px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3);
+    transition: all 0.2s ease;
+}
+
+.modal-shiny-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 10px -1px rgba(245, 158, 11, 0.4);
+}
+
+.modal-shiny-btn.shiny-active {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+}
+
+.modal-info-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.pokemon-description {
+    font-style: italic;
+    color: #475569;
+    line-height: 1.5;
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 12px;
+    border-left: 4px solid #3b82f6;
+    margin: 0;
+    font-size: 0.95em;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.info-box {
+    background: #f8fafc;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #f1f5f9;
+}
+
+.info-box.full-width {
+    grid-column: 1 / -1;
+}
+
+.info-label {
+    font-size: 0.75em;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.info-value {
+    font-size: 0.95em;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Pestaña 2: Estadísticas */
+.bst-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f1f5f9;
+    padding: 12px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+.bst-label {
+    font-size: 1em;
+    font-weight: 700;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.bst-value {
+    font-size: 1.25em;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.stats-detailed-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.stat-row-detailed {
+    display: grid;
+    grid-template-columns: 85px 40px 1fr 110px;
+    align-items: center;
+    gap: 12px;
+}
+
+.stat-label-detailed {
+    font-size: 0.85em;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-val-detailed {
+    font-size: 0.9em;
+    font-weight: 700;
+    color: #0f172a;
+    text-align: right;
+}
+
+.stat-bar-container {
+    height: 10px;
+    background: #f1f5f9;
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+}
+
+.stat-bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    width: 0;
+    transition: width 0.8s cubic-bezier(0.1, 0.8, 0.3, 1);
+}
+
+.stat-range-lv100 {
+    font-size: 0.75em;
+    color: #64748b;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 500;
+}
+
+.range-min {
+    color: #ef4444;
+}
+
+.range-max {
+    color: #22c55e;
+}
+
+/* Pestaña 3: Efectividades */
+.effectiveness-section-title {
+    font-size: 1em;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 6px;
+}
+
+.effectiveness-group-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.mult-row {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    align-items: center;
+    gap: 12px;
+    background: #f8fafc;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #f1f5f9;
+}
+
+.mult-badge-label {
+    font-size: 0.8em;
+    font-weight: 800;
+    padding: 3px 6px;
+    border-radius: 6px;
+    text-align: center;
+    color: white;
+}
+
+.mult-4x { background: #dc2626; }
+.mult-2x { background: #ea580c; }
+.mult-0-5x { background: #16a34a; }
+.mult-0-25x { background: #15803d; }
+.mult-0x { background: #475569; }
+
+.mult-types-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.offensive-info {
+    background: #f0fdf4;
+    border: 1px solid #dcfce7;
+    color: #166534;
+    padding: 12px 15px;
+    border-radius: 10px;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+/* Gradientes dinámicos de tipo */
+.modal-type-normal { background: linear-gradient(135deg, #a8a77a 0%, #7c7b57 100%); }
+.modal-type-fire { background: linear-gradient(135deg, #ee8130 0%, #b85810 100%); }
+.modal-type-water { background: linear-gradient(135deg, #6390f0 0%, #2858b8 100%); }
+.modal-type-electric { background: linear-gradient(135deg, #f7d02c 0%, #b89800 100%); }
+.modal-type-grass { background: linear-gradient(135deg, #7ac74c 0%, #4a8f2a 100%); }
+.modal-type-ice { background: linear-gradient(135deg, #96d9d6 0%, #58a8a5 100%); }
+.modal-type-fighting { background: linear-gradient(135deg, #c22e28 0%, #88100c 100%); }
+.modal-type-poison { background: linear-gradient(135deg, #a33ea1 0%, #6d206b 100%); }
+.modal-type-ground { background: linear-gradient(135deg, #e2bf65 0%, #a88838 100%); }
+.modal-type-flying { background: linear-gradient(135deg, #a98ff3 0%, #7058a8 100%); }
+.modal-type-psychic { background: linear-gradient(135deg, #f95587 0%, #b8204c 100%); }
+.modal-type-bug { background: linear-gradient(135deg, #a6b91a 0%, #6d7b0c 100%); }
+.modal-type-rock { background: linear-gradient(135deg, #b6a136 0%, #78681c 100%); }
+.modal-type-ghost { background: linear-gradient(135deg, #735797 0%, #483560 100%); }
+.modal-type-dragon { background: linear-gradient(135deg, #6f35fc 0%, #400c98 100%); }
+.modal-type-dark { background: linear-gradient(135deg, #705746 0%, #403025 100%); }
+.modal-type-steel { background: linear-gradient(135deg, #b7b7ce 0%, #808098 100%); }
+.modal-type-fairy { background: linear-gradient(135deg, #d685ad 0%, #a8547c 100%); }
+
+/* Ajustes responsivos para la modal */
+@media (max-width: 640px) {
+    .summary-layout {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .modal-wrapper {
+        width: 95%;
+        height: 85vh; /* Keep responsive static height on mobile */
+    }
+    
+    .modal-body {
+        padding: 15px;
+    }
+    
+    .stat-row-detailed {
+        grid-template-columns: 75px 35px 1fr;
+        gap: 8px;
+    }
+    
+    .stat-range-lv100 {
+        grid-column: 1 / -1;
+        margin-top: 3px;
+        border-top: 1px dashed #f1f5f9;
+        padding-top: 3px;
+        justify-content: flex-end;
+        gap: 15px;
+    }
+    
+    .modal-pokemon-header h2 {
+        font-size: 1.8em;
+    }
+}
+
+/* Pokeball Random Container & Animation */
+.pokeball-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 25px;
+    background: #f8fafc;
+    border-radius: 20px;
+    border: 2px dashed #cbd5e1;
+    width: 100%;
+    max-width: 400px;
+    margin: 10px auto;
+    transition: all 0.3s ease;
+}
+
+.pokeball-container:hover {
+    border-color: #3b82f6;
+    background: #f0f7ff;
+}
+
+.pokeball {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    background: #fff;
+    border: 5px solid #1e293b;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: inset -4px -4px 0 rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.12);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.pokeball-top {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 50%;
+    background: #ef4444;
+    border-bottom: 2.5px solid #1e293b;
+}
+
+.pokeball-band {
+    position: absolute;
+    top: calc(50% - 2.5px);
+    width: 100%;
+    height: 5px;
+    background: #1e293b;
+}
+
+.pokeball-button {
+    position: absolute;
+    top: calc(50% - 13px);
+    left: calc(50% - 13px);
+    width: 26px;
+    height: 26px;
+    background: #fff;
+    border: 4px solid #1e293b;
+    border-radius: 50%;
+    z-index: 10;
+    box-shadow: 0 0 0 2px #fff;
+    transition: background-color 0.2s ease;
+}
+
+.pokeball:hover {
+    animation: wiggle 0.5s ease-in-out infinite;
+    transform: scale(1.08) rotate(5deg);
+    box-shadow: inset -4px -4px 0 rgba(0,0,0,0.1), 0 15px 30px rgba(239, 68, 68, 0.4);
+}
+
+.pokeball:hover .pokeball-button {
+    background: #ffedd5;
+}
+
+@keyframes wiggle {
+    0% { transform: rotate(0deg); }
+    20% { transform: rotate(-8deg); }
+    40% { transform: rotate(8deg); }
+    60% { transform: rotate(-4deg); }
+    80% { transform: rotate(4deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.pokeball.spinning {
+    animation: pokeballSpin 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes pokeballSpin {
+    0% { transform: rotate(0deg) scale(1.08); }
+    50% { transform: rotate(360deg) scale(0.85); }
+    100% { transform: rotate(720deg) scale(1); }
+}
+
+.pokeball-hint {
+    color: #475569;
+    font-size: 0.95em;
+    font-weight: 600;
+    margin: 0;
+    text-align: center;
+    letter-spacing: 0.3px;
+}
+

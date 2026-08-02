@@ -21,7 +21,7 @@
             <div class="search-content">
                 <div id="id-search" class="search-tab active">
                     <input type="number" id="pokemonId" placeholder="Ingresa ID del Pokémon (1-1010)" min="1" max="1010">
-                    <button id="fetchByIdButton" class="search-btn">🔍 Buscar</button>
+                    <button id="fetchByIdButton" class="search-btn">Buscar</button>
                 </div>
                 
                 <div id="name-search" class="search-tab">
@@ -29,25 +29,50 @@
                         <input type="text" id="pokemonName" placeholder="Ingresa el nombre del Pokémon" autocomplete="off">
                         <div id="autocomplete-dropdown" class="autocomplete-dropdown"></div>
                     </div>
-                    <button id="fetchByNameButton" class="search-btn">🔍 Buscar</button>
+                    <button id="fetchByNameButton" class="search-btn">Buscar</button>
                 </div>
                 
                 <div id="type-search" class="search-tab">
                     <div class="dual-type-container">
-                        <select id="pokemonType" class="type-dropdown">
-                            <option value="">Tipo principal...</option>
-                        </select>
-                        <select id="pokemonType2" class="type-dropdown">
-                            <option value="">Tipo secundario (opcional)...</option>
-                        </select>
+                        <!-- Custom Select 1 -->
+                        <div class="custom-select-container" id="typeSelectContainer1">
+                            <button class="custom-select-trigger" id="typeTrigger1">
+                                <span class="trigger-content">
+                                    <span class="type-icon-badge empty" id="badgeTrigger1">
+                                        <img id="iconTrigger1" class="dropdown-type-icon" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'></circle></svg>">
+                                    </span>
+                                    <span id="textTrigger1" class="trigger-text">Tipo principal...</span>
+                                </span>
+                                <span class="custom-chevron"></span>
+                            </button>
+                            <div class="custom-options-panel" id="optionsPanel1"></div>
+                        </div>
+                        
+                        <!-- Custom Select 2 -->
+                        <div class="custom-select-container" id="typeSelectContainer2">
+                            <button class="custom-select-trigger" id="typeTrigger2">
+                                <span class="trigger-content">
+                                    <span class="type-icon-badge empty" id="badgeTrigger2">
+                                        <img id="iconTrigger2" class="dropdown-type-icon" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'></circle></svg>">
+                                    </span>
+                                    <span id="textTrigger2" class="trigger-text">Ninguno</span>
+                                </span>
+                                <span class="custom-chevron"></span>
+                            </button>
+                            <div class="custom-options-panel" id="optionsPanel2"></div>
+                        </div>
                     </div>
-                    <button id="fetchByTypeButton" class="search-btn">🔍 Ver Pokémon</button>
+                    <button id="fetchByTypeButton" class="search-btn" style="margin-top: 15px;">Ver Pokémon</button>
                 </div>
                 
                 <div id="random-search" class="search-tab">
-                    <div class="random-container">
-                        <p class="random-description">Descubre un Pokémon aleatorio y sorpréndete</p>
-                        <button id="fetchRandomButton" class="search-btn random-btn">🎲 Pokémon Aleatorio</button>
+                    <div class="pokeball-container">
+                        <div class="pokeball" id="randomPokeball">
+                            <div class="pokeball-top"></div>
+                            <div class="pokeball-band"></div>
+                            <div class="pokeball-button"></div>
+                        </div>
+                        <p class="pokeball-hint">Haz clic en la Pokéball para capturar un Pokémon al azar</p>
                     </div>
                 </div>
             </div>
@@ -57,6 +82,21 @@
         <div id="pokemonList" class="pokemon-list"></div>
     </div>
     
+    <!-- Modal de Pokémon -->
+    <div id="pokemonModal" class="modal">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-wrapper">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div id="modalLoading" class="modal-loading">
+                <div class="spinner"></div>
+                <p>Cargando datos del Pokémon...</p>
+            </div>
+            <div id="modalContent" class="modal-content-area" style="display: none;">
+                <!-- El contenido dinámico de la modal irá aquí -->
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
