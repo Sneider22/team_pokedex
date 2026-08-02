@@ -4,7 +4,7 @@ Una aplicación web moderna, rápida y responsive diseñada para explorar el mun
 
 ---
 
-## 📸 Vista Previa (Capturas de Pantalla)
+## Vista Previa (Capturas de Pantalla)
 
 ### Interfaz Principal y Autocompletado de Nombres
 La pantalla principal cuenta con pestañas alineadas y un sistema de autocompletado avanzado que muestra el número de la Pokédex y la miniatura (sprite) frontal de cada Pokémon en tiempo real.
@@ -28,7 +28,7 @@ Muestra una matriz defensiva que calcula el daño recibido (4x, 2x, 0.5x, 0.25x,
 
 ---
 
-## ⚡ Características Principales
+## Características Principales
 
 ### 🔎 Módulos de Búsqueda Avanzados
 *   **Búsqueda por ID**: Validación instantánea para números válidos del catálogo nacional (1-1010) con mensajes de error controlados.
@@ -44,7 +44,7 @@ Muestra una matriz defensiva que calcula el daño recibido (4x, 2x, 0.5x, 0.25x,
 
 ---
 
-## 🛠️ Tecnologías y Recursos Utilizados
+## Tecnologías y Recursos Utilizados
 
 *   **HTML5 Semántico**: Estructura limpia y accesible de la Pokédex.
 *   **CSS3 Nativo**: 
@@ -60,7 +60,7 @@ Muestra una matriz defensiva que calcula el daño recibido (4x, 2x, 0.5x, 0.25x,
 
 ---
 
-## 📂 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 team_pokedex/
@@ -79,7 +79,7 @@ team_pokedex/
 
 ---
 
-## 🚀 Despliegue Local
+## Despliegue Local
 
 Para levantar el proyecto en tu entorno local y probar todas sus funcionalidades:
 
